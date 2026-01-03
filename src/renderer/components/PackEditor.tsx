@@ -9,12 +9,14 @@ import "./PackEditor.css";
 interface PackEditorProps {
   gameFolder: string;
   packName: string;
+  isWorkshopPack?: boolean;
   onBack: () => void;
 }
 
 export default function PackEditor({
   gameFolder,
   packName,
+  isWorkshopPack = false,
   onBack,
 }: PackEditorProps) {
   const [pack, setPack] = useState<ReskinPack | null>(null);
@@ -25,7 +27,7 @@ export default function PackEditor({
   const [savedPack, setSavedPack] = useState<ReskinPack | null>(null);
   const [autoSaving, setAutoSaving] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const packPath = `${gameFolder}/reskinpacks/${packName}`;
+  const [packPath, setPackPath] = useState<string>("");
 
   useEffect(() => {
     loadPack();
@@ -47,11 +49,36 @@ export default function PackEditor({
     try {
       setLoading(true);
       setError(null);
-      console.log("Loading pack:", { gameFolder, packName });
-      const data = await (window as any).electron.readReskinPack(
-        gameFolder,
-        packName
-      );
+      console.log("Loading pack:", { gameFolder, packName, isWorkshopPack });
+
+      let data;
+      let actualPackPath: string;
+
+      if (isWorkshopPack) {
+        // Get workshop mod path
+        const workshopPath = await (window as any).electron.getWorkshopModPath(
+          packName,
+          gameFolder
+        );
+        if (!workshopPath) {
+          setError("Could not find workshop mod path");
+          setPack(null);
+          return;
+        }
+        actualPackPath = workshopPath;
+
+        data = await (window as any).electron.readWorkshopReskinPack(
+          packName,
+          gameFolder
+        );
+      } else {
+        actualPackPath = `${gameFolder}/reskinpacks/${packName}`;
+        data = await (window as any).electron.readReskinPack(
+          gameFolder,
+          packName
+        );
+      }
+
       console.log("Pack data loaded:", data);
 
       if (!data) {
@@ -60,6 +87,7 @@ export default function PackEditor({
         return;
       }
 
+      setPackPath(actualPackPath);
       setPack(data);
       setSavedPack(JSON.parse(JSON.stringify(data))); // Deep copy
     } catch (err) {
@@ -73,7 +101,7 @@ export default function PackEditor({
   }
 
   async function autoSavePack() {
-    if (!pack) return;
+    if (!pack || isWorkshopPack) return; // Don't auto-save workshop packs
 
     try {
       setAutoSaving(true);
@@ -254,6 +282,7 @@ export default function PackEditor({
             type="text"
             value={pack.name}
             onChange={(e) => handleUpdatePackName(e.target.value)}
+            disabled={isWorkshopPack}
           />
         </div>
 
@@ -265,19 +294,22 @@ export default function PackEditor({
             value={pack.version}
             onChange={(e) => handleUpdatePackVersion(e.target.value)}
             placeholder="1.0.0"
+            disabled={isWorkshopPack}
           />
         </div>
 
-        <div className="form-group">
-          <button
-            onClick={savePack}
-            disabled={!hasUnsavedMetadata() || saving}
-            className="save-button"
-          >
-            <Save size={18} />
-            {saving ? "Saving..." : "Save Changes"}
-          </button>
-        </div>
+        {!isWorkshopPack && (
+          <div className="form-group">
+            <button
+              onClick={savePack}
+              disabled={!hasUnsavedMetadata() || saving}
+              className="save-button"
+            >
+              <Save size={18} />
+              {saving ? "Saving..." : "Save Changes"}
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="resources-section">
@@ -310,16 +342,18 @@ export default function PackEditor({
       <div className="reskins-section">
         <div className="section-header">
           <h3>Reskins ({pack.reskins.length})</h3>
-          <button
-            onClick={() => setShowAddForm(!showAddForm)}
-            className="add-button"
-          >
-            <Plus size={16} />
-            {showAddForm ? "Cancel" : "Add Reskin"}
-          </button>
+          {!isWorkshopPack && (
+            <button
+              onClick={() => setShowAddForm(!showAddForm)}
+              className="add-button"
+            >
+              <Plus size={16} />
+              {showAddForm ? "Cancel" : "Add Reskin"}
+            </button>
+          )}
         </div>
 
-        {showAddForm && (
+        {!isWorkshopPack && showAddForm && (
           <ReskinForm
             gameFolder={gameFolder}
             packName={packName}
@@ -349,7 +383,7 @@ export default function PackEditor({
                         key={`${type}-${typeIndex}`}
                         packPath={packPath}
                         reskin={reskin}
-                        onDelete={() => handleRemoveReskin(globalIndex)}
+                        onDelete={!isWorkshopPack ? () => handleRemoveReskin(globalIndex) : undefined}
                         refreshTrigger={refreshTrigger}
                       />
                     );

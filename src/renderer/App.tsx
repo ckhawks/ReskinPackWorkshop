@@ -19,6 +19,7 @@ export default function App() {
   const [gameFolder, setGameFolder] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState<Page>("game-detection");
   const [selectedPack, setSelectedPack] = useState<string | null>(null);
+  const [isWorkshopPack, setIsWorkshopPack] = useState(false);
   const [currentPackData, setCurrentPackData] = useState<ReskinPack | null>(null);
   const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(null);
 
@@ -64,14 +65,16 @@ export default function App() {
     setCurrentPage("pack-list");
   }
 
-  function handleSelectPack(packName: string) {
+  function handleSelectPack(packName: string, isWorkshop: boolean = false) {
     setSelectedPack(packName);
+    setIsWorkshopPack(isWorkshop);
     setCurrentPage("pack-editor");
   }
 
   function handleBackToPacks() {
     setCurrentPage("pack-list");
     setSelectedPack(null);
+    setIsWorkshopPack(false);
     setCurrentPackData(null);
   }
 
@@ -130,6 +133,7 @@ export default function App() {
           <PackEditor
             gameFolder={gameFolder}
             packName={selectedPack}
+            isWorkshopPack={isWorkshopPack}
             onBack={handleBackToPacks}
           />
         )}

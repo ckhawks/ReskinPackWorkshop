@@ -265,7 +265,7 @@ ipcMain.handle("save-dropped-file", async (_, fileName: string, base64Data: stri
   }
 });
 
-ipcMain.handle("scan-workshop-mods", async (_, gameFolder: string) => {
+ipcMain.handle("scan-workshop-mods", (_, gameFolder: string) => {
   try {
     return scanWorkshopMods(gameFolder);
   } catch (error) {

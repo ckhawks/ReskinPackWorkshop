@@ -55,10 +55,7 @@
     },
     "portable": {
       "artifactName": "${productName}-${version}.exe"
-    },
-    "asarUnpack": [
-      "**/node_modules/sharp/**/*"
-    ]
+    }
   },
   "dependencies": {
     "lucide-react": "^0.562.0",

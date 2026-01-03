@@ -10,6 +10,7 @@ export interface WorkshopMod {
   type: "local" | "workshop-reskin" | "workshop-mod";
   name?: string;
   displayName: string; // fallback to workshop ID if name not found
+  thumbnailUrl?: string;
 }
 
 /**
@@ -107,21 +108,34 @@ export function scanWorkshopMods(gameFolderPath?: string): WorkshopMod[] {
       const reskinPackJsonPath = path.join(modPath, "reskinpack.json");
       const isReskinPack = fs.existsSync(reskinPackJsonPath);
 
-      // Try to get mod name from metadata.vdf or other sources
       let modName: string | undefined;
-      try {
-        // Try to read metadata.vdf for mod information
-        const metadataPath = path.join(modPath, "metadata.vdf");
-        if (fs.existsSync(metadataPath)) {
-          const content = fs.readFileSync(metadataPath, "utf-8");
-          // Simple parsing - look for "title" field
-          const titleMatch = content.match(/"title"\s*"([^"]+)"/);
-          if (titleMatch) {
-            modName = titleMatch[1];
+
+      // For reskin packs, read the name from reskinpack.json
+      if (isReskinPack) {
+        try {
+          const content = fs.readFileSync(reskinPackJsonPath, "utf-8");
+          const packData = JSON.parse(content);
+          if (packData.name) {
+            modName = packData.name;
           }
+        } catch (err) {
+          console.log("Could not read reskinpack.json for mod:", folder);
         }
-      } catch (err) {
-        console.log("Could not read metadata for mod:", folder);
+      } else {
+        // For other mods, try to get name from metadata.vdf
+        try {
+          const metadataPath = path.join(modPath, "metadata.vdf");
+          if (fs.existsSync(metadataPath)) {
+            const content = fs.readFileSync(metadataPath, "utf-8");
+            // Simple parsing - look for "title" field
+            const titleMatch = content.match(/"title"\s*"([^"]+)"/);
+            if (titleMatch) {
+              modName = titleMatch[1];
+            }
+          }
+        } catch (err) {
+          console.log("Could not read metadata for mod:", folder);
+        }
       }
 
       mods.push({

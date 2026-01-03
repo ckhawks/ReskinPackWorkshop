@@ -11,7 +11,7 @@ interface PackInfo {
 
 interface PackListProps {
   gameFolder: string;
-  onSelectPack: (packName: string) => void;
+  onSelectPack: (packName: string, isWorkshop?: boolean) => void;
   onOpenAbout: () => void;
 }
 
@@ -30,14 +30,21 @@ export default function PackList({ gameFolder, onSelectPack, onOpenAbout }: Pack
   }, [gameFolder]);
 
   async function loadAllContent() {
-    await loadPacks();
-    await loadWorkshopMods();
+    try {
+      setLoading(true);
+      setError(null);
+      await loadPacks();
+      await loadWorkshopMods();
+    } catch (err) {
+      setError("Failed to load content");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function loadPacks() {
     try {
-      setLoading(true);
-      setError(null);
       const packList = await (window as any).electron.listReskinPacks(gameFolder);
 
       // Load pack data to get reskin counts and display names
@@ -64,18 +71,20 @@ export default function PackList({ gameFolder, onSelectPack, onOpenAbout }: Pack
     } catch (err) {
       setError("Failed to load reskin packs");
       console.error(err);
-    } finally {
-      setLoading(false);
     }
   }
 
   async function loadWorkshopMods() {
     try {
       const allMods = await (window as any).electron.scanWorkshopMods(gameFolder);
+      console.log("Workshop mods found:", allMods);
 
       // Separate into reskin packs and other mods
       const reskinPacks = allMods.filter((mod: any) => mod.isReskinPack);
       const otherMods = allMods.filter((mod: any) => !mod.isReskinPack);
+
+      console.log("Workshop reskin packs:", reskinPacks);
+      console.log("Other mods:", otherMods);
 
       setWorkshopReskinPacks(reskinPacks);
       setWorkshopMods(otherMods);
@@ -237,18 +246,30 @@ export default function PackList({ gameFolder, onSelectPack, onOpenAbout }: Pack
           <div className="packs-grid">
             {workshopReskinPacks.map((mod) => (
               <div key={mod.workshopId} className="pack-card workshop-pack">
+                {mod.thumbnailUrl && (
+                  <img src={mod.thumbnailUrl} alt={mod.displayName} className="pack-thumbnail" />
+                )}
                 <div className="pack-header">
                   <div>
                     <h3 className="pack-name">{mod.displayName}</h3>
                     <p className="workshop-id">ID: {mod.workshopId}</p>
                   </div>
                 </div>
-                <button
-                  onClick={() => (window as any).electron.openExternalUrl(`https://steamcommunity.com/workshop/filedetails/?id=${mod.workshopId}`)}
-                  className="open-button workshop"
-                >
-                  View on Steam
-                </button>
+                <div className="button-group">
+                  <button
+                    onClick={() => onSelectPack(mod.workshopId, true)}
+                    className="open-button workshop"
+                  >
+                    <Edit2 size={16} />
+                    Browse Pack
+                  </button>
+                  <button
+                    onClick={() => (window as any).electron.openExternalUrl(`https://steamcommunity.com/workshop/filedetails/?id=${mod.workshopId}`)}
+                    className="open-button workshop secondary"
+                  >
+                    View on Steam
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -261,6 +282,9 @@ export default function PackList({ gameFolder, onSelectPack, onOpenAbout }: Pack
           <div className="packs-grid">
             {workshopMods.map((mod) => (
               <div key={mod.workshopId} className="pack-card workshop-pack other-mod">
+                {mod.thumbnailUrl && (
+                  <img src={mod.thumbnailUrl} alt={mod.displayName} className="pack-thumbnail" />
+                )}
                 <div className="pack-header">
                   <div>
                     <h3 className="pack-name">{mod.displayName}</h3>

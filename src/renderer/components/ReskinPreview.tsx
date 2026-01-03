@@ -9,7 +9,7 @@ import "./ReskinPreview.css";
 interface ReskinPreviewProps {
   packPath: string;
   reskin: Reskin;
-  onDelete: () => void;
+  onDelete?: () => void;
   refreshTrigger?: number;
 }
 
@@ -54,8 +54,10 @@ export default function ReskinPreview({
           cancelText="Cancel"
           isDangerous={true}
           onConfirm={() => {
-            onDelete();
-            setShowDeleteConfirm(false);
+            if (onDelete) {
+              onDelete();
+              setShowDeleteConfirm(false);
+            }
           }}
           onCancel={() => setShowDeleteConfirm(false)}
         />
@@ -120,13 +122,15 @@ export default function ReskinPreview({
               >
                 <EditIcon size={16} />
               </button>
-              <button
-                onClick={() => setShowDeleteConfirm(true)}
-                className="reskin-preview-delete"
-                title="Delete reskin"
-              >
-                <Trash2 size={16} />
-              </button>
+              {onDelete && (
+                <button
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="reskin-preview-delete"
+                  title="Delete reskin"
+                >
+                  <Trash2 size={16} />
+                </button>
+              )}
             </div>
           </div>
           <p className="reskin-preview-type">{getReskinTypeLabel(reskin.type)}</p>
