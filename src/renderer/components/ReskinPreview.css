@@ -94,6 +94,25 @@
   flex-shrink: 0;
 }
 
+.reskin-preview-replace {
+  background: none;
+  border: none;
+  color: #9b59b6;
+  cursor: pointer;
+  padding: 2px;
+  flex-shrink: 0;
+  transition: color 0.2s;
+}
+
+.reskin-preview-replace:hover:not(:disabled) {
+  color: #8e44ad;
+}
+
+.reskin-preview-replace:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .reskin-preview-edit {
   background: none;
   border: none;
@@ -141,4 +160,13 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.reskin-preview-replace-error {
+  margin: 4px 0 0 0;
+  font-size: 11px;
+  color: #c62828;
+  background: #ffebee;
+  padding: 4px 6px;
+  border-radius: 3px;
 }

@@ -22,11 +22,22 @@ export default function App() {
   const [isWorkshopPack, setIsWorkshopPack] = useState(false);
   const [currentPackData, setCurrentPackData] = useState<ReskinPack | null>(null);
   const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(null);
+  const [appVersion, setAppVersion] = useState<string>("");
 
   useEffect(() => {
     loadConfig();
     checkForUpdates();
+    loadAppVersion();
   }, []);
+
+  async function loadAppVersion() {
+    try {
+      const version = await (window as any).electron.getAppVersion();
+      setAppVersion(version);
+    } catch (error) {
+      console.error("Error loading app version:", error);
+    }
+  }
 
   async function checkForUpdates() {
     try {
@@ -105,7 +116,7 @@ export default function App() {
       )}
 
       <header className="app-header">
-        <h1>Reskin Pack Workshop</h1>
+        <h1>Reskin Pack Workshop {appVersion && <span className="version">v{appVersion}</span>}</h1>
         {gameFolder && (
           <div className="game-folder-display">
             <span>Game: {gameFolder}</span>

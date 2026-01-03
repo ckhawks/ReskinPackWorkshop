@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Edit2, Trash2, HelpCircle } from "lucide-react";
+import { Plus, Edit2, Trash2, HelpCircle, RotateCw } from "lucide-react";
 import ConfirmDialog from "./ConfirmDialog";
 import "./PackList.css";
 
@@ -24,10 +24,17 @@ export default function PackList({ gameFolder, onSelectPack, onOpenAbout }: Pack
   const [newPackName, setNewPackName] = useState("");
   const [creatingPack, setCreatingPack] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<{ folderName: string; displayName: string } | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     loadAllContent();
   }, [gameFolder]);
+
+  async function handleRefresh() {
+    setRefreshing(true);
+    await loadAllContent();
+    setRefreshing(false);
+  }
 
   async function loadAllContent() {
     try {
@@ -153,10 +160,20 @@ export default function PackList({ gameFolder, onSelectPack, onOpenAbout }: Pack
             {packs.length} pack{packs.length !== 1 ? "s" : ""} ({packs.reduce((sum, pack) => sum + pack.reskinCount, 0)} total reskins)
           </p>
         </div>
-        <button onClick={onOpenAbout} className="about-button" title="About this app">
-          <HelpCircle size={18} />
-          About
-        </button>
+        <div className="header-buttons">
+          <button
+            onClick={handleRefresh}
+            className="refresh-button"
+            title="Refresh pack list"
+            disabled={refreshing || loading}
+          >
+            <RotateCw size={18} className={refreshing ? "spinning" : ""} />
+          </button>
+          <button onClick={onOpenAbout} className="about-button" title="About this app">
+            <HelpCircle size={18} />
+            About
+          </button>
+        </div>
       </div>
 
       <form onSubmit={handleCreatePack} className="create-pack-form">

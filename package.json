@@ -1,6 +1,6 @@
 {
   "name": "reskin-pack-workshop",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Create and manage reskin packs for Puck",
   "main": "dist/main/main.js",
   "homepage": "./",
@@ -25,9 +25,9 @@
     "electron": "^39.2.7",
     "electron-builder": "^26.0.12",
     "esbuild": "^0.27.2",
+    "lucide-react": "^0.562.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "semver": "^7.7.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   },
@@ -38,9 +38,25 @@
       "buildResources": "public"
     },
     "files": [
-      "dist/**/*",
+      "dist/main/**/*",
+      "dist/renderer/**/*",
+      "dist/utils/**/*",
+      "dist/types/**/*",
       "node_modules/**/*",
-      "package.json"
+      "package.json",
+      "!**/node_modules/**/*.md",
+      "!**/node_modules/**/*.ts",
+      "!**/node_modules/**/*.map",
+      "!**/node_modules/**/LICENSE*",
+      "!**/node_modules/**/CHANGELOG*",
+      "!**/node_modules/**/.github/**",
+      "!**/node_modules/**/docs/**",
+      "!**/node_modules/**/test/**",
+      "!**/node_modules/**/tests/**",
+      "!**/node_modules/**/__tests__/**"
+    ],
+    "electronLanguages": [
+      "en-US"
     ],
     "win": {
       "target": [
@@ -51,14 +67,15 @@
           ]
         }
       ],
-      "compression": "maximum"
+      "compression": "maximum",
+      "signAndEditExecutable": false
     },
     "portable": {
       "artifactName": "${productName}-${version}.exe"
     }
   },
   "dependencies": {
-    "lucide-react": "^0.562.0",
-    "sharp": "^0.34.5"
+    "image-size": "^2.0.2",
+    "semver": "^7.7.3"
   }
 }

@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer } from "electron";
 
 contextBridge.exposeInMainWorld("electron", {
+  getAppVersion: () => ipcRenderer.invoke("get-app-version"),
   getConfig: () => ipcRenderer.invoke("get-config"),
   saveConfig: (config: any) => ipcRenderer.invoke("save-config", config),
   detectGameFolder: () => ipcRenderer.invoke("detect-game-folder"),
@@ -46,4 +47,5 @@ contextBridge.exposeInMainWorld("electron", {
   scanWorkshopMods: (gameFolder: string) => ipcRenderer.invoke("scan-workshop-mods", gameFolder),
   getWorkshopModPath: (workshopId: string, gameFolder: string) => ipcRenderer.invoke("get-workshop-mod-path", workshopId, gameFolder),
   readWorkshopReskinPack: (workshopId: string, gameFolder: string) => ipcRenderer.invoke("read-workshop-reskin-pack", workshopId, gameFolder),
+  replaceImage: (destPath: string, sourceImagePath: string) => ipcRenderer.invoke("replace-image", destPath, sourceImagePath),
 });

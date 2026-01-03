@@ -1,6 +1,6 @@
 import * as path from "path";
 import * as fs from "fs";
-import sharp from "sharp";
+import imageSize from "image-size";
 import {
   MIN_IMAGE_RESOLUTION,
   MAX_IMAGE_RESOLUTION,
@@ -39,15 +39,16 @@ export function validateImageResolution(width: number, height: number): boolean 
 }
 
 /**
- * Get image dimensions using sharp metadata
+ * Get image dimensions using image-size
  */
 export async function getImageDimensions(
   filePath: string
 ): Promise<{ width: number; height: number } | null> {
   try {
-    const metadata = await sharp(filePath).metadata();
-    if (metadata.width && metadata.height) {
-      return { width: metadata.width, height: metadata.height };
+    const buffer = fs.readFileSync(filePath);
+    const dimensions = imageSize(new Uint8Array(buffer));
+    if (dimensions.width && dimensions.height) {
+      return { width: dimensions.width, height: dimensions.height };
     }
     return null;
   } catch (error) {

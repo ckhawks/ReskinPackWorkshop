@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Image, Edit as EditIcon, Trash2 } from "lucide-react";
+import { Image, Edit as EditIcon, Trash2, ImagePlus } from "lucide-react";
 import ConfirmDialog from "./ConfirmDialog";
 import ImagePreviewModal from "./ImagePreviewModal";
 import { Reskin } from "../../types";
@@ -10,6 +10,7 @@ interface ReskinPreviewProps {
   packPath: string;
   reskin: Reskin;
   onDelete?: () => void;
+  onImageReplace?: () => void;
   refreshTrigger?: number;
 }
 
@@ -17,6 +18,7 @@ export default function ReskinPreview({
   packPath,
   reskin,
   onDelete,
+  onImageReplace,
   refreshTrigger = 0,
 }: ReskinPreviewProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -24,6 +26,56 @@ export default function ReskinPreview({
   const [imageError, setImageError] = useState<string | null>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [replacing, setReplacing] = useState(false);
+  const [replaceError, setReplaceError] = useState<string | null>(null);
+
+  async function handleReplaceImage() {
+    try {
+      setReplacing(true);
+      setReplaceError(null);
+
+      // Open file dialog
+      const selectedPath = await (window as any).electron.selectImage();
+      if (!selectedPath) {
+        setReplacing(false);
+        return;
+      }
+
+      // Validate the image
+      const validation = await (window as any).electron.validateImage(selectedPath);
+      if (!validation.valid) {
+        setReplaceError(validation.errors.join(", "));
+        setReplacing(false);
+        return;
+      }
+
+      // Replace the image
+      const fullPath = `${packPath}${packPath.endsWith("/") ? "" : "/"}${reskin.path}`;
+      const result = await (window as any).electron.replaceImage(fullPath, selectedPath);
+
+      if (!result.success) {
+        setReplaceError(result.error || "Failed to replace image");
+        setReplacing(false);
+        return;
+      }
+
+      // Reload the image
+      setImageLoaded(false);
+      const dataUrl = await (window as any).electron.readImageAsDataUrl(fullPath);
+      if (dataUrl) {
+        setImageSrc(dataUrl);
+      }
+
+      // Notify parent to refresh
+      if (onImageReplace) {
+        onImageReplace();
+      }
+    } catch (err) {
+      setReplaceError(String(err));
+    } finally {
+      setReplacing(false);
+    }
+  }
 
   // Load image as data URL on mount or when refresh is triggered
   useEffect(() => {
@@ -112,6 +164,16 @@ export default function ReskinPreview({
           <div className="reskin-preview-header">
             <h4>{reskin.name}</h4>
             <div className="reskin-preview-actions">
+              {onImageReplace && (
+                <button
+                  onClick={handleReplaceImage}
+                  className="reskin-preview-replace"
+                  title="Replace with another image"
+                  disabled={replacing}
+                >
+                  <ImagePlus size={16} />
+                </button>
+              )}
               <button
                 onClick={() => {
                   const fullPath = `${packPath}${packPath.endsWith("/") ? "" : "/"}${reskin.path}`;
@@ -137,6 +199,9 @@ export default function ReskinPreview({
           <p className="reskin-preview-path" title={reskin.path}>
             {reskin.path}
           </p>
+          {replaceError && (
+            <p className="reskin-preview-replace-error">{replaceError}</p>
+          )}
         </div>
       </div>
     </>

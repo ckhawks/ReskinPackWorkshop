@@ -384,6 +384,7 @@ export default function PackEditor({
                         packPath={packPath}
                         reskin={reskin}
                         onDelete={!isWorkshopPack ? () => handleRemoveReskin(globalIndex) : undefined}
+                        onImageReplace={!isWorkshopPack ? () => setRefreshTrigger(prev => prev + 1) : undefined}
                         refreshTrigger={refreshTrigger}
                       />
                     );

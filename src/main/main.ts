@@ -70,6 +70,10 @@ ipcMain.handle("get-config", () => {
   return loadConfig();
 });
 
+ipcMain.handle("get-app-version", () => {
+  return app.getVersion();
+});
+
 ipcMain.handle("save-config", (_, config) => {
   return saveConfig(config);
 });
@@ -296,5 +300,28 @@ ipcMain.handle("read-workshop-reskin-pack", async (_, workshopId: string, gameFo
   } catch (error) {
     console.error("Error reading workshop reskin pack:", error);
     return null;
+  }
+});
+
+ipcMain.handle("replace-image", async (_, destPath: string, sourceImagePath: string) => {
+  try {
+    const fs = require("fs");
+
+    // Normalize paths
+    const normalizedDest = destPath.replace(/\//g, path.sep);
+    const normalizedSource = sourceImagePath.replace(/\//g, path.sep);
+
+    // Verify source exists
+    if (!fs.existsSync(normalizedSource)) {
+      return { success: false, error: "Source image not found" };
+    }
+
+    // Copy the source to destination, overwriting if exists
+    fs.copyFileSync(normalizedSource, normalizedDest);
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error replacing image:", error);
+    return { success: false, error: String(error) };
   }
 });

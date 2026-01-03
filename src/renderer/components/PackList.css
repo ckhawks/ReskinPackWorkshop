@@ -22,6 +22,40 @@
   font-size: 14px;
 }
 
+.header-buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.refresh-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  color: #666;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.refresh-button:hover:not(:disabled) {
+  background-color: #e0e0e0;
+  color: #3498db;
+  border-color: #3498db;
+}
+
+.refresh-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.refresh-button .spinning {
+  animation: spin 1s linear infinite;
+}
+
 .about-button {
   display: flex;
   align-items: center;
