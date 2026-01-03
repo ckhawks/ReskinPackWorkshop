@@ -1,0 +1,67 @@
+{
+  "name": "reskin-pack-workshop",
+  "version": "1.0.0",
+  "description": "Create and manage reskin packs for Puck",
+  "main": "dist/main/main.js",
+  "homepage": "./",
+  "scripts": {
+    "build:ts": "tsc",
+    "build:renderer": "node build-renderer.js",
+    "copy:files": "node copy-files.js",
+    "build": "npm run build:ts && npm run build:renderer && npm run copy:files",
+    "dev": "npm run build && concurrently \"npm run watch:ts\" \"npm run build:renderer dev\" \"electron dist/main/main.js\"",
+    "start": "electron dist/main/main.js",
+    "dist": "npm run build && electron-builder --publish never",
+    "dist:portable": "npm run build && electron-builder --publish never -p always"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^25.0.3",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@types/semver": "^7.7.1",
+    "concurrently": "^9.2.1",
+    "electron": "^39.2.7",
+    "electron-builder": "^26.0.12",
+    "esbuild": "^0.27.2",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "semver": "^7.7.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  },
+  "build": {
+    "appId": "com.reskinpackworkshop.app",
+    "productName": "Reskin Pack Workshop",
+    "directories": {
+      "buildResources": "public"
+    },
+    "files": [
+      "dist/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "compression": "maximum"
+    },
+    "portable": {
+      "artifactName": "${productName}-${version}.exe"
+    },
+    "asarUnpack": [
+      "**/node_modules/sharp/**/*"
+    ]
+  },
+  "dependencies": {
+    "lucide-react": "^0.562.0",
+    "sharp": "^0.34.5"
+  }
+}

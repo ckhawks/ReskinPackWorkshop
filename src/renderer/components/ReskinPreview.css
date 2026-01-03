@@ -1,0 +1,144 @@
+.reskin-preview-card {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #eee;
+  transition: all 0.2s;
+}
+
+.reskin-preview-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.reskin-preview-image {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+  background: #f5f5f5;
+  border-radius: 4px;
+  border: 1px solid #eee;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.reskin-preview-image[role="button"]:hover {
+  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+  border-color: #3498db;
+}
+
+.reskin-preview-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.reskin-preview-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #ccc;
+  background: #f9f9f9;
+}
+
+.reskin-preview-placeholder.error {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.reskin-preview-error-text {
+  margin: 0;
+  font-size: 11px;
+  color: #c62828;
+  font-weight: 600;
+  margin-top: 6px;
+  text-align: center;
+}
+
+.reskin-preview-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.reskin-preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.reskin-preview-header h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #2c3e50;
+  word-break: break-word;
+  flex: 1;
+}
+
+.reskin-preview-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.reskin-preview-edit {
+  background: none;
+  border: none;
+  color: #3498db;
+  cursor: pointer;
+  padding: 2px;
+  flex-shrink: 0;
+  transition: color 0.2s;
+}
+
+.reskin-preview-edit:hover {
+  color: #2980b9;
+}
+
+.reskin-preview-delete {
+  background: none;
+  border: none;
+  color: #f44336;
+  cursor: pointer;
+  padding: 2px;
+  flex-shrink: 0;
+  transition: color 0.2s;
+}
+
+.reskin-preview-delete:hover {
+  color: #da190b;
+}
+
+.reskin-preview-type {
+  margin: 0 0 4px 0;
+  font-size: 12px;
+  color: #666;
+  background: #f5f5f5;
+  padding: 2px 6px;
+  border-radius: 3px;
+  display: inline-block;
+  font-weight: 500;
+}
+
+.reskin-preview-path {
+  margin: 0;
+  font-size: 11px;
+  color: #999;
+  font-family: monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

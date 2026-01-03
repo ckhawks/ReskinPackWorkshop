@@ -1,0 +1,157 @@
+.game-detection {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.detection-container {
+  background: white;
+  border-radius: 8px;
+  padding: 40px;
+  max-width: 500px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.detection-container h2 {
+  font-size: 28px;
+  margin-bottom: 10px;
+  color: #2c3e50;
+}
+
+.subtitle {
+  color: #666;
+  margin-bottom: 30px;
+  line-height: 1.5;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px 0;
+}
+
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.detection-result {
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 30px;
+  display: flex;
+  gap: 15px;
+}
+
+.detection-result.success {
+  background-color: #e8f5e9;
+  border: 1px solid #4caf50;
+}
+
+.detection-result.not-found {
+  background-color: #fff3e0;
+  border: 1px solid #ff9800;
+}
+
+.result-icon {
+  font-size: 28px;
+  font-weight: bold;
+  min-width: 30px;
+}
+
+.detection-result.success .result-icon {
+  color: #4caf50;
+}
+
+.detection-result.not-found .result-icon {
+  color: #ff9800;
+}
+
+.result-content h3 {
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.folder-path {
+  font-family: monospace;
+  font-size: 12px;
+  color: #666;
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 8px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  word-break: break-all;
+}
+
+.error-message {
+  background-color: #ffebee;
+  border: 1px solid #f44336;
+  color: #c62828;
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+.action-buttons button {
+  flex: 1;
+}
+
+.primary-button {
+  background-color: #4caf50;
+  color: white;
+  font-weight: 600;
+}
+
+.primary-button:hover {
+  background-color: #45a049;
+}
+
+.secondary-button {
+  background-color: #f0f0f0;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+.secondary-button:hover:not(:disabled) {
+  background-color: #e0e0e0;
+}
+
+.help-text {
+  background-color: #f9f9f9;
+  border-left: 4px solid #3498db;
+  padding: 15px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.help-text p {
+  line-height: 1.6;
+}
+
+.help-text code {
+  background-color: #f0f0f0;
+  padding: 2px 4px;
+  border-radius: 2px;
+  font-family: monospace;
+  word-break: break-all;
+}
