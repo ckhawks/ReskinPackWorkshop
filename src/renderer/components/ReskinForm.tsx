@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Upload, X } from "lucide-react";
 import { Reskin, ReskinType } from "../../types";
 import { RESKIN_TYPES, RESKIN_TYPE_FOLDERS, getReskinTypeLabel } from "../../utils/constants";
@@ -25,14 +25,9 @@ export default function ReskinForm({
   const [error, setError] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
 
-  async function validateAndSetImage(imagePath: string) {
+  async function validateImageForType(imagePath: string, type: ReskinType) {
     try {
-      setSelectedImage(imagePath);
-      setImagePreview(imagePath);
-      setError(null);
-
-      // Validate image
-      const validation = await (window as any).electron.validateImage(imagePath);
+      const validation = await (window as any).electron.validateImage(imagePath, type);
       if (!validation.valid) {
         const errorMessage = validation.errors
           .map((err: string) => `• ${err}`)
@@ -46,6 +41,21 @@ export default function ReskinForm({
       console.error(err);
     }
   }
+
+  async function validateAndSetImage(imagePath: string) {
+    setSelectedImage(imagePath);
+    setImagePreview(imagePath);
+    setError(null);
+    await validateImageForType(imagePath, reskinType);
+  }
+
+  // Re-validate when the reskin type changes (different types have different resolution rules)
+  useEffect(() => {
+    if (selectedImage) {
+      validateImageForType(selectedImage, reskinType);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reskinType]);
 
   async function handleSelectImage() {
     try {

@@ -19,8 +19,8 @@ contextBridge.exposeInMainWorld("electron", {
   deleteReskinPack: (gameFolder: string, packName: string) =>
     ipcRenderer.invoke("delete-reskin-pack", gameFolder, packName),
   selectImage: () => ipcRenderer.invoke("select-image"),
-  validateImage: (imagePath: string) =>
-    ipcRenderer.invoke("validate-image", imagePath),
+  validateImage: (imagePath: string, reskinType?: string) =>
+    ipcRenderer.invoke("validate-image", imagePath, reskinType),
   copyImageToPack: (
     gameFolder: string,
     packName: string,

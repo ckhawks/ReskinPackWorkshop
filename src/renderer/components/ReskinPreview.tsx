@@ -42,7 +42,7 @@ export default function ReskinPreview({
       }
 
       // Validate the image
-      const validation = await (window as any).electron.validateImage(selectedPath);
+      const validation = await (window as any).electron.validateImage(selectedPath, reskin.type);
       if (!validation.valid) {
         setReplaceError(validation.errors.join(", "));
         setReplacing(false);

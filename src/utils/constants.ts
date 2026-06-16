@@ -56,6 +56,10 @@ export const MAX_IMAGE_RESOLUTION = 2048;
 export const IMAGE_RESOLUTION_INCREMENT = 16;
 export const VALID_IMAGE_FORMATS = [".png"];
 
+// Rink ice uses a 2:1 aspect ratio (width = 2 * height) and supports much higher resolutions
+export const RINK_ICE_MIN_WIDTH = 1024;
+export const RINK_ICE_MAX_WIDTH = 8192;
+
 /**
  * Get the display label for a reskin type, handling unknown types gracefully
  */

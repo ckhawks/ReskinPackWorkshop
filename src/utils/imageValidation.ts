@@ -6,7 +6,10 @@ import {
   MAX_IMAGE_RESOLUTION,
   IMAGE_RESOLUTION_INCREMENT,
   VALID_IMAGE_FORMATS,
+  RINK_ICE_MIN_WIDTH,
+  RINK_ICE_MAX_WIDTH,
 } from "./constants";
+import { ReskinType } from "../types";
 
 /**
  * Validate image file extension
@@ -17,25 +20,54 @@ export function validateImageFormat(filePath: string): boolean {
 }
 
 /**
- * Validate image resolution (should be square, increment of 16, within bounds)
+ * Validate image resolution. Most reskins must be square; rink_ice uses a 2:1 aspect ratio.
  */
-export function validateImageResolution(width: number, height: number): boolean {
-  // Check if square
+export function validateImageResolution(
+  width: number,
+  height: number,
+  reskinType?: ReskinType
+): { valid: boolean; error?: string } {
+  if (reskinType === "rink_ice") {
+    if (width !== height * 2) {
+      return {
+        valid: false,
+        error: `Invalid resolution: ${width}x${height}. Rink ice must have a 2:1 aspect ratio (width = 2 × height), e.g. 8192x4096.`,
+      };
+    }
+    if (width < RINK_ICE_MIN_WIDTH || width > RINK_ICE_MAX_WIDTH) {
+      return {
+        valid: false,
+        error: `Invalid resolution: ${width}x${height}. Rink ice width must be between ${RINK_ICE_MIN_WIDTH} and ${RINK_ICE_MAX_WIDTH}px.`,
+      };
+    }
+    if (width % IMAGE_RESOLUTION_INCREMENT !== 0) {
+      return {
+        valid: false,
+        error: `Invalid resolution: ${width}x${height}. Dimensions must be in increments of ${IMAGE_RESOLUTION_INCREMENT}px.`,
+      };
+    }
+    return { valid: true };
+  }
+
   if (width !== height) {
-    return false;
+    return {
+      valid: false,
+      error: `Invalid resolution: ${width}x${height}. Image must be square.`,
+    };
   }
-
-  // Check if within bounds
   if (width < MIN_IMAGE_RESOLUTION || width > MAX_IMAGE_RESOLUTION) {
-    return false;
+    return {
+      valid: false,
+      error: `Invalid resolution: ${width}x${height}. Image must be between ${MIN_IMAGE_RESOLUTION} and ${MAX_IMAGE_RESOLUTION}px.`,
+    };
   }
-
-  // Check if increment of 16
   if (width % IMAGE_RESOLUTION_INCREMENT !== 0) {
-    return false;
+    return {
+      valid: false,
+      error: `Invalid resolution: ${width}x${height}. Dimensions must be in increments of ${IMAGE_RESOLUTION_INCREMENT}px (e.g., 512, 1024, 2048).`,
+    };
   }
-
-  return true;
+  return { valid: true };
 }
 
 /**
@@ -60,35 +92,34 @@ export async function getImageDimensions(
 /**
  * Validate complete image file
  */
-export async function validateImageFile(filePath: string): Promise<{
+export async function validateImageFile(
+  filePath: string,
+  reskinType?: ReskinType
+): Promise<{
   valid: boolean;
   errors: string[];
 }> {
   const errors: string[] = [];
 
-  // Check file exists
   if (!fs.existsSync(filePath)) {
     errors.push("File does not exist");
     return { valid: false, errors };
   }
 
-  // Check format
   if (!validateImageFormat(filePath)) {
     errors.push(`Invalid format. Only ${VALID_IMAGE_FORMATS.join(", ")} allowed`);
     return { valid: false, errors };
   }
 
-  // Check dimensions
   try {
     const dimensions = await getImageDimensions(filePath);
     if (!dimensions) {
       errors.push("Could not read image dimensions");
-    } else if (!validateImageResolution(dimensions.width, dimensions.height)) {
-      const resolutionRange = `${MIN_IMAGE_RESOLUTION}-${MAX_IMAGE_RESOLUTION}px`;
-      const increment = IMAGE_RESOLUTION_INCREMENT;
-      errors.push(
-        `Invalid resolution: ${dimensions.width}x${dimensions.height}. Image must be square (${resolutionRange}), in increments of ${increment}px (e.g., 512, 1024, 2048)`
-      );
+    } else {
+      const result = validateImageResolution(dimensions.width, dimensions.height, reskinType);
+      if (!result.valid && result.error) {
+        errors.push(result.error);
+      }
     }
   } catch (error) {
     errors.push("Failed to validate image dimensions");

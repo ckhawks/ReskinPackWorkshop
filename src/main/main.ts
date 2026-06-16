@@ -148,8 +148,8 @@ ipcMain.handle("select-image", async () => {
   return result.filePaths[0];
 });
 
-ipcMain.handle("validate-image", async (_, imagePath) => {
-  return validateImageFile(imagePath);
+ipcMain.handle("validate-image", async (_, imagePath, reskinType?: ReskinType) => {
+  return validateImageFile(imagePath, reskinType);
 });
 
 ipcMain.handle("copy-image-to-pack", (_, gameFolder, packName, sourceImagePath, reskinType: ReskinType, imageName) => {
