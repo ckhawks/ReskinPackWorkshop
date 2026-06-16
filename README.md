@@ -7,7 +7,7 @@ A desktop application for creating and managing reskin packs for Toaster's Reski
 - Create and manage local reskin packs
 - Add, replace, and remove reskin textures
 - Browse subscribed Steam Workshop reskin packs
-- Image validation (PNG format, square dimensions, 512-2048px)
+- Image validation (PNG format, square dimensions 512-2048px; rink ice uses a 2:1 aspect ratio up to 8192px wide)
 - Auto-detection of game installation folder
 
 ---
@@ -27,7 +27,7 @@ It is not a code-signed app so you may get a Windows Smartscreen error. It costs
 1. Launch the application
 2. Select your Puck game folder (auto-detected if installed via Steam)
 3. Create a new reskin pack or edit an existing one
-4. Add reskin textures by selecting PNG images (must be square, 512-2048px)
+4. Add reskin textures by selecting PNG images (must be square, 512-2048px; rink ice must be 2:1, e.g. 8192x4096)
 5. Your reskin packs are saved to the game's `reskinpacks` folder
 
 ---
