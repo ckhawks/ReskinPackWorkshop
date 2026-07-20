@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Edit2, Trash2, HelpCircle, RotateCw } from "lucide-react";
+import { Plus, Edit2, Trash2, RotateCw } from "lucide-react";
 import ConfirmDialog from "./ConfirmDialog";
 import "./PackList.css";
 
@@ -13,9 +13,10 @@ interface PackListProps {
   gameFolder: string;
   onSelectPack: (packName: string, isWorkshop?: boolean) => void;
   onOpenAbout: () => void;
+  onOpenWorkshop: () => void;
 }
 
-export default function PackList({ gameFolder, onSelectPack, onOpenAbout }: PackListProps) {
+export default function PackList({ gameFolder, onSelectPack, onOpenAbout, onOpenWorkshop }: PackListProps) {
   const [packs, setPacks] = useState<PackInfo[]>([]);
   const [workshopReskinPacks, setWorkshopReskinPacks] = useState<any[]>([]);
   const [workshopMods, setWorkshopMods] = useState<any[]>([]);
@@ -31,8 +32,14 @@ export default function PackList({ gameFolder, onSelectPack, onOpenAbout }: Pack
   }, [gameFolder]);
 
   async function handleRefresh() {
+    if (refreshing) return;
     setRefreshing(true);
+    const started = performance.now();
     await loadAllContent();
+    const elapsed = performance.now() - started;
+    if (elapsed < 500) {
+      await new Promise((r) => setTimeout(r, 500 - elapsed));
+    }
     setRefreshing(false);
   }
 
@@ -168,10 +175,6 @@ export default function PackList({ gameFolder, onSelectPack, onOpenAbout }: Pack
             disabled={refreshing || loading}
           >
             <RotateCw size={18} className={refreshing ? "spinning" : ""} />
-          </button>
-          <button onClick={onOpenAbout} className="about-button" title="About this app">
-            <HelpCircle size={18} />
-            About
           </button>
         </div>
       </div>

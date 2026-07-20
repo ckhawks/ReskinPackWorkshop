@@ -1,12 +1,8 @@
 import React from "react";
-import { ArrowLeft, Github, Heart, MessageCircle, Package } from "lucide-react";
+import { Github, Heart, MessageCircle, Package, ExternalLink } from "lucide-react";
 import "./About.css";
 
-interface AboutProps {
-  onBack: () => void;
-}
-
-export default function About({ onBack }: AboutProps) {
+export default function About() {
   const openUrl = (url: string) => {
     (window as any).electron.openExternalUrl(url);
   };
@@ -14,10 +10,6 @@ export default function About({ onBack }: AboutProps) {
   return (
     <div className="about-container">
       <div className="about-header">
-        <button onClick={onBack} className="back-button">
-          <ArrowLeft size={20} />
-          Back
-        </button>
         <h1>About Reskin Pack Workshop</h1>
       </div>
 
@@ -32,6 +24,7 @@ export default function About({ onBack }: AboutProps) {
             className="about-link-button"
           >
             Visit Stellaric.pw
+            <ExternalLink size={15} />
           </button>
         </section>
 
@@ -48,6 +41,7 @@ export default function About({ onBack }: AboutProps) {
             className="about-link-button"
           >
             View on Steam Workshop
+            <ExternalLink size={15} />
           </button>
         </section>
 
@@ -64,6 +58,7 @@ export default function About({ onBack }: AboutProps) {
             className="about-link-button"
           >
             Join Discord Server
+            <ExternalLink size={15} />
           </button>
         </section>
 
@@ -80,6 +75,7 @@ export default function About({ onBack }: AboutProps) {
             className="about-link-button"
           >
             View on GitHub
+            <ExternalLink size={15} />
           </button>
         </section>
 
@@ -89,13 +85,14 @@ export default function About({ onBack }: AboutProps) {
             <h2>Support Development</h2>
           </div>
           <p>
-            If you find this tool useful and want to support continued development, consider buying me a coffee!
+            If you find this tool useful, consider supporting my work and server/infrastructure costs!
           </p>
           <button
             onClick={() => openUrl("https://ko-fi.com/stellaric")}
             className="about-link-button donate"
           >
             Support on Ko-fi
+            <ExternalLink size={15} />
           </button>
         </section>
       </div>

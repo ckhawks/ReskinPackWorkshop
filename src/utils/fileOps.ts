@@ -126,6 +126,74 @@ export function copyImageToPack(
   }
 }
 
+export interface ContentFileInfo {
+  path: string; // relative to the content root, forward slashes
+  size: number; // bytes
+  modified: number; // mtime in ms
+}
+
+export interface ContentListing {
+  files: ContentFileInfo[];
+  totalBytes: number;
+  totalCount: number;
+  truncated: boolean; // true if more files exist than `files` contains
+}
+
+/**
+ * Recursively list every file under a folder, with size and last-modified time.
+ * Used to preview exactly what will be uploaded to the Workshop. Results are
+ * sorted most-recently-modified first and capped at `max` entries.
+ */
+export function listContentFiles(dir: string, max = 5000): ContentListing {
+  const files: ContentFileInfo[] = [];
+  let totalBytes = 0;
+  let totalCount = 0;
+
+  function walk(current: string, prefix: string): void {
+    let entries: fs.Dirent[];
+    try {
+      entries = fs.readdirSync(current, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      const full = path.join(current, entry.name);
+      const rel = prefix ? `${prefix}/${entry.name}` : entry.name;
+      if (entry.isDirectory()) {
+        walk(full, rel);
+      } else if (entry.isFile()) {
+        totalCount++;
+        try {
+          const stat = fs.statSync(full);
+          totalBytes += stat.size;
+          if (files.length < max) {
+            files.push({
+              path: rel,
+              size: stat.size,
+              modified: Math.round(stat.mtimeMs),
+            });
+          }
+        } catch {
+          /* skip unreadable file */
+        }
+      }
+    }
+  }
+
+  if (fs.existsSync(dir)) {
+    walk(dir, "");
+  }
+
+  files.sort((a, b) => b.modified - a.modified);
+
+  return {
+    files,
+    totalBytes,
+    totalCount,
+    truncated: totalCount > files.length,
+  };
+}
+
 /**
  * Delete a reskin pack folder
  */

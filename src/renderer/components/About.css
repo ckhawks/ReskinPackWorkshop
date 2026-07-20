@@ -108,3 +108,9 @@
 .about-section:last-child svg {
   color: #e74c3c;
 }
+
+/* Icons inside the filled link buttons should match the white button text,
+   not the section's accent color (which equals the button background). */
+.about-section .about-link-button svg {
+  color: #fff;
+}

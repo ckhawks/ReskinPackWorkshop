@@ -61,9 +61,48 @@ body {
   background-color: #2980b9;
 }
 
+.app-nav {
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  background-color: #34495e;
+  padding: 0 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+.nav-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: none;
+  border: none;
+  border-radius: 0;
+  border-bottom: 3px solid transparent;
+  color: rgba(255, 255, 255, 0.7);
+  padding: 13px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background-color 0.15s;
+}
+.nav-tab:hover {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.06);
+}
+.nav-tab.active {
+  color: #fff;
+  border-bottom-color: #3498db;
+}
+.nav-spacer {
+  flex: 1;
+}
+
 .app-main {
   flex: 1;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: auto;
+  /* Reserve the vertical scrollbar's space at all times so pages don't shift
+     horizontally when their content grows tall enough to need one. */
+  scrollbar-gutter: stable;
   padding: 20px;
 }
 

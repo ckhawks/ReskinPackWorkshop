@@ -83,6 +83,25 @@
   background-color: #e0e0e0;
 }
 
+.publish-pack-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #4caf50;
+  color: #fff;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.publish-pack-button:hover {
+  background-color: #45a049;
+}
+
 .error-message {
   background-color: #ffebee;
   border: 1px solid #f44336;

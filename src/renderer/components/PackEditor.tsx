@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { ArrowLeft, Save, Plus, ExternalLink, BookOpen, Folder, FileText, Image, RotateCw } from "lucide-react";
-import { ReskinPack, ReskinType } from "../../types";
+import { ArrowLeft, Save, Plus, ExternalLink, BookOpen, Folder, FileText, Image, RotateCw, UploadCloud } from "lucide-react";
+import { ReskinPack, ReskinType, WorkshopItemRecord } from "../../types";
 import { RESKIN_TYPE_LABELS, getReskinTypeLabel } from "../../utils/constants";
 import ReskinForm from "./ReskinForm";
 import ReskinPreview from "./ReskinPreview";
+import PublishModal from "./PublishModal";
 import "./PackEditor.css";
 
 interface PackEditorProps {
@@ -28,6 +29,18 @@ export default function PackEditor({
   const [autoSaving, setAutoSaving] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [packPath, setPackPath] = useState<string>("");
+  const [showPublish, setShowPublish] = useState(false);
+  const [publishExisting, setPublishExisting] = useState<WorkshopItemRecord | null>(null);
+
+  async function openPublish() {
+    try {
+      const existing = await (window as any).electron.workshopGetItemForPack(packName);
+      setPublishExisting(existing || null);
+    } catch {
+      setPublishExisting(null);
+    }
+    setShowPublish(true);
+  }
 
   useEffect(() => {
     loadPack();
@@ -208,6 +221,21 @@ export default function PackEditor({
 
   return (
     <div className="pack-editor">
+      {showPublish && (
+        <PublishModal
+          gameFolder={gameFolder}
+          kind="reskin-pack"
+          packName={packName}
+          existing={publishExisting}
+          defaultTitle={savedPack?.name || pack?.name || packName}
+          onClose={() => setShowPublish(false)}
+          onPublished={() => {
+            // Reload so the mirrored workshop-id shows up in the pack data.
+            loadPack();
+          }}
+        />
+      )}
+
       {!loading && (
         <div className="editor-header">
           <button onClick={onBack} className="back-button">
@@ -216,6 +244,16 @@ export default function PackEditor({
           </button>
           <h2>Editing: {pack ? savedPack?.name || packName : packName}</h2>
           <div className="header-buttons">
+            {!isWorkshopPack && (
+              <button
+                onClick={openPublish}
+                className="publish-pack-button"
+                title="Publish this pack to the Steam Workshop"
+              >
+                <UploadCloud size={16} />
+                Publish
+              </button>
+            )}
             <button
               onClick={() => {
                 loadPack();

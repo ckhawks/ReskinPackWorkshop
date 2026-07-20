@@ -108,6 +108,57 @@
 - No installer needed - runs directly
 - All features fully functional in standalone build
 
+## ✅ Phase 3: Steam Workshop Publishing (COMPLETE)
+
+Built-in uploader for the Puck Workshop, replacing the need for the generic
+SteamWorkshopUploader tool. Works for reskin packs and generic mod/plugin
+folders.
+
+### Backend (Electron main process)
+- ✅ **`steamworks.js`** integration (native module, ABI-stable prebuilt binary,
+  App ID `2994020`). All Steam calls run in the main process; the renderer stays
+  locked down (`contextIsolation: true`, no overlay).
+- ✅ **`steamWorkshop.ts`** — init/status, create item, publish (update) item,
+  live-metadata fetch (`getItem`), list-my-published (`getUserItems`), Puck build
+  id detection from `appmanifest_2994020.acf`, preview validation, and preview
+  recompression via Electron `nativeImage` (no extra deps).
+- ✅ **`workshopItems.ts`** — app-data registry (`workshopItems.json`) mapping
+  items → published file id, tags, visibility, and preview path. Previews stored
+  in app data (`previews/`), never inside content folders.
+- ✅ **`publishFlow.ts`** — orchestration: ensure Steam → create if new → upload
+  content + only the changed metadata → persist registry → mirror `workshop-id`
+  into `reskinpack.json` for reskin packs.
+- ✅ IPC handlers + preload bindings for all of the above.
+
+### UI (React)
+- ✅ **`PublishModal`** — publish/update dialog for both item kinds: Steam status
+  banner, live-metadata prefill on update, preview picker with explicit
+  "too big → compress it to fit" action, tag chips (Resource Pack / clientside /
+  Build N — reskin packs only; build tag for any mod), visibility, change note,
+  and the accept-agreement flow.
+- ✅ **`WorkshopPage`** — manage all tracked items and create generic folder
+  uploads.
+- ✅ **Publish** button in the pack editor; **Workshop** nav button in the pack
+  list.
+
+### Key behaviors
+- Re-publishing updates the same Workshop item (never a duplicate).
+- Live description/tags are read from Steam before an update so website edits
+  aren't clobbered.
+- Oversized preview images are flagged and compressed only on explicit user
+  action; the original file is never modified.
+
+### Packaging notes
+- `asarUnpack: ["node_modules/steamworks.js/**"]` so the native `.node` +
+  `steam_api64.dll` load outside the asar; Linux/macOS binaries and `.lib` files
+  are excluded from the Windows build.
+- `steam_appid.txt` (2994020) is included for dev; production passes the App ID
+  to `init()` directly.
+- ⚠️ **Manual verification still needed:** build the portable `.exe`
+  (`npm run dist:portable`) and do one live publish with Steam running to confirm
+  the packaged native module loads. Everything typechecks, builds, and loads in
+  dev.
+
 ## 📁 Project Structure
 
 ```

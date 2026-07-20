@@ -1,11 +1,12 @@
 {
   "name": "reskin-pack-workshop",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Create and manage reskin packs for Puck",
   "main": "dist/main/main.js",
   "homepage": "./",
   "scripts": {
     "build:ts": "tsc",
+    "watch:ts": "tsc -w",
     "build:renderer": "node build-renderer.js",
     "copy:files": "node copy-files.js",
     "build": "npm run build:ts && npm run build:renderer && npm run copy:files",
@@ -53,7 +54,12 @@
       "!**/node_modules/**/docs/**",
       "!**/node_modules/**/test/**",
       "!**/node_modules/**/tests/**",
-      "!**/node_modules/**/__tests__/**"
+      "!**/node_modules/**/__tests__/**",
+      "!**/node_modules/steamworks.js/dist/{linux64,osx}/**",
+      "!**/node_modules/steamworks.js/**/*.lib"
+    ],
+    "asarUnpack": [
+      "node_modules/steamworks.js/**"
     ],
     "electronLanguages": [
       "en-US"
@@ -76,6 +82,7 @@
   },
   "dependencies": {
     "image-size": "^2.0.2",
-    "semver": "^7.7.3"
+    "semver": "^7.7.3",
+    "steamworks.js": "^0.4.0"
   }
 }

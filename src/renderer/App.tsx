@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
+import { Package, UploadCloud, HelpCircle } from "lucide-react";
 import { AppConfig, ReskinPack } from "../types";
 import GameDetection from "./components/GameDetection";
 import PackList from "./components/PackList";
 import PackEditor from "./components/PackEditor";
 import About from "./components/About";
+import WorkshopPage from "./components/WorkshopPage";
 import UpdateNotification from "./components/UpdateNotification";
 import "./App.css";
 
-type Page = "game-detection" | "pack-list" | "pack-editor" | "about";
+type Page = "game-detection" | "pack-list" | "pack-editor" | "about" | "workshop";
 
 interface UpdateInfo {
   latest: string;
@@ -100,9 +102,19 @@ export default function App() {
     setCurrentPage("about");
   }
 
-  function handleBackFromAbout() {
+  function handleOpenWorkshop() {
+    setCurrentPage("workshop");
+  }
+
+  function handleGoPacks() {
+    setSelectedPack(null);
+    setIsWorkshopPack(false);
+    setCurrentPackData(null);
     setCurrentPage("pack-list");
   }
+
+  const packsActive =
+    currentPage === "pack-list" || currentPage === "pack-editor";
 
   return (
     <div className="app">
@@ -127,6 +139,33 @@ export default function App() {
         )}
       </header>
 
+      {gameFolder && currentPage !== "game-detection" && (
+        <nav className="app-nav">
+          <button
+            className={`nav-tab ${packsActive ? "active" : ""}`}
+            onClick={handleGoPacks}
+          >
+            <Package size={17} />
+            Reskin Packs
+          </button>
+          <button
+            className={`nav-tab ${currentPage === "workshop" ? "active" : ""}`}
+            onClick={handleOpenWorkshop}
+          >
+            <UploadCloud size={17} />
+            Workshop
+          </button>
+          <div className="nav-spacer" />
+          <button
+            className={`nav-tab ${currentPage === "about" ? "active" : ""}`}
+            onClick={handleOpenAbout}
+          >
+            <HelpCircle size={17} />
+            About
+          </button>
+        </nav>
+      )}
+
       <main className="app-main">
         {currentPage === "game-detection" && (
           <GameDetection onGameFolderSelected={handleGameFolderSelected} />
@@ -137,7 +176,12 @@ export default function App() {
             gameFolder={gameFolder}
             onSelectPack={handleSelectPack}
             onOpenAbout={handleOpenAbout}
+            onOpenWorkshop={handleOpenWorkshop}
           />
+        )}
+
+        {currentPage === "workshop" && gameFolder && (
+          <WorkshopPage gameFolder={gameFolder} />
         )}
 
         {currentPage === "pack-editor" && gameFolder && selectedPack && (
@@ -149,9 +193,7 @@ export default function App() {
           />
         )}
 
-        {currentPage === "about" && (
-          <About onBack={handleBackFromAbout} />
-        )}
+        {currentPage === "about" && <About />}
       </main>
     </div>
   );

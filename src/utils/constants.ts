@@ -74,3 +74,20 @@ export function getReskinTypeLabel(type: ReskinType | string): string {
 export const PUCK_GAME_NAME = "Puck";
 export const DEFAULT_GAME_PATH = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Puck";
 export const RESKINPACKS_FOLDER = "reskinpacks";
+
+/** Puck's Steam App ID, used for both workshop scanning and UGC uploads. */
+export const PUCK_APP_ID = 2994020;
+
+// Steam Workshop preview image limits.
+export const WORKSHOP_PREVIEW_MAX_BYTES = 1024 * 1024; // Steam's hard 1MB limit
+export const WORKSHOP_PREVIEW_MAX_DIMENSION = 1024; // cap we downscale to when recompressing
+export const WORKSHOP_PREVIEW_FORMATS = [".png", ".jpg", ".jpeg", ".gif"];
+
+// Official Puck Workshop tag categories (plus per-build tags like "B1153",
+// which are offered dynamically from the detected game build).
+/** The tag every reskin pack gets selected by default. */
+export const WORKSHOP_DEFAULT_TAG = "Resource Pack";
+/** Category chips offered for reskin packs. */
+export const WORKSHOP_RESKIN_TAGS = ["Resource Pack", "Client-sided"];
+/** Category chips offered for generic mod/plugin uploads. */
+export const WORKSHOP_MOD_TAGS = ["Mod", "Client-sided", "Server-sided"];

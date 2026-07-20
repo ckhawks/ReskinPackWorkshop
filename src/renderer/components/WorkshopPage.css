@@ -1,0 +1,272 @@
+.workshop-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.workshop-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.workshop-header h2 {
+  flex: 1;
+  color: #2c3e50;
+  font-size: 22px;
+}
+
+.ws-steam-status {
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 18px;
+}
+.ws-steam-status span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ws-steam-status.ok {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+.ws-steam-status.bad {
+  background: #fff3e0;
+  color: #b26a00;
+}
+
+.ws-actions-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.ws-hint {
+  font-size: 13px;
+  color: #888;
+}
+.ws-hint-block {
+  margin-bottom: 20px;
+}
+.ws-sync-status {
+  font-size: 13px;
+  margin: -8px 0 14px;
+}
+.ws-sync-status.ok {
+  color: #2e7d32;
+}
+.ws-sync-status.err {
+  color: #c62828;
+}
+
+.ws-section-title {
+  color: #2c3e50;
+  font-size: 16px;
+  margin: 18px 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #eee;
+}
+
+.ws-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.ws-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.ws-row:last-child {
+  border-bottom: none;
+}
+.ws-row:hover {
+  background: #fafcfe;
+}
+.ws-row-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: #eef4f8;
+  color: #2c3e50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.ws-row-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.ws-row-main {
+  flex: 1;
+  min-width: 0;
+}
+.ws-row-main h4 {
+  color: #2c3e50;
+  font-size: 15px;
+  margin-bottom: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ws-row-sub {
+  font-size: 12px;
+  color: #888;
+}
+.ws-row-updated {
+  font-size: 12px;
+  color: #999;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-right: 4px;
+}
+.ws-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+@media (max-width: 720px) {
+  .ws-row-updated {
+    display: none;
+  }
+}
+
+.ws-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: #4caf50;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+}
+.ws-primary:hover {
+  background: #45a049;
+}
+.ws-primary.large {
+  padding: 11px 18px;
+  font-size: 14px;
+}
+
+.ws-edit {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: #3498db;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+}
+.ws-edit:hover {
+  background: #2980b9;
+}
+
+.ws-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 12px;
+  background: #f0f0f0;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.ws-secondary:hover {
+  background: #e6e6e6;
+}
+
+.ws-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  background: #f0f0f0;
+  color: #555;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.ws-icon-button:hover {
+  background: #e6e6e6;
+}
+
+.ws-empty {
+  color: #888;
+  font-size: 14px;
+  padding: 8px 0;
+}
+
+.ws-import-result {
+  position: relative;
+  background: #eef4f8;
+  border: 1px solid #cfe2ef;
+  border-radius: 8px;
+  padding: 12px 36px 12px 14px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  color: #2c3e50;
+}
+.ws-import-result .err {
+  color: #c62828;
+}
+.ws-import-result ul {
+  margin: 8px 0 0 18px;
+  color: #b26a00;
+}
+.ws-import-close {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #7591a6;
+  font-size: 14px;
+}
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: #f0f0f0;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.back-button:hover {
+  background: #e6e6e6;
+}
+
+.spin {
+  animation: ws-spin 1s linear infinite;
+}
+@keyframes ws-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

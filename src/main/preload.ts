@@ -48,4 +48,23 @@ contextBridge.exposeInMainWorld("electron", {
   getWorkshopModPath: (workshopId: string, gameFolder: string) => ipcRenderer.invoke("get-workshop-mod-path", workshopId, gameFolder),
   readWorkshopReskinPack: (workshopId: string, gameFolder: string) => ipcRenderer.invoke("read-workshop-reskin-pack", workshopId, gameFolder),
   replaceImage: (destPath: string, sourceImagePath: string) => ipcRenderer.invoke("replace-image", destPath, sourceImagePath),
+
+  // Steam Workshop publishing
+  workshopGetSteamStatus: () => ipcRenderer.invoke("workshop-get-steam-status"),
+  workshopDetectBuildId: (gameFolder?: string) => ipcRenderer.invoke("workshop-detect-build-id", gameFolder),
+  workshopListItems: () => ipcRenderer.invoke("workshop-list-items"),
+  workshopGetItemForPack: (packName: string) => ipcRenderer.invoke("workshop-get-item-for-pack", packName),
+  workshopSaveItem: (record: any) => ipcRenderer.invoke("workshop-save-item", record),
+  workshopDeleteItemTracking: (localId: string) => ipcRenderer.invoke("workshop-delete-item-tracking", localId),
+  workshopSelectPreview: () => ipcRenderer.invoke("workshop-select-preview"),
+  workshopSelectContentFolder: () => ipcRenderer.invoke("workshop-select-content-folder"),
+  workshopValidatePreview: (sourcePath: string) => ipcRenderer.invoke("workshop-validate-preview", sourcePath),
+  workshopPreparePreview: (keySeed: string, sourcePath: string, recompress: boolean) =>
+    ipcRenderer.invoke("workshop-prepare-preview", keySeed, sourcePath, recompress),
+  workshopGetLiveMetadata: (publishedFileId: string) => ipcRenderer.invoke("workshop-get-live-metadata", publishedFileId),
+  workshopListMyPublished: () => ipcRenderer.invoke("workshop-list-my-published"),
+  workshopPublish: (req: any) => ipcRenderer.invoke("workshop-publish", req),
+  workshopImportSwu: (defaultPath?: string) => ipcRenderer.invoke("workshop-import-swu", defaultPath),
+  workshopListContentFiles: (contentPath: string) => ipcRenderer.invoke("workshop-list-content-files", contentPath),
+  workshopSyncAll: () => ipcRenderer.invoke("workshop-sync-all"),
 });

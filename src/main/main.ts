@@ -1,20 +1,55 @@
-import { app, BrowserWindow, ipcMain, dialog, shell, Menu, globalShortcut } from "electron";
+import { app, BrowserWindow, ipcMain, dialog, shell, Menu, globalShortcut, screen } from "electron";
 import * as path from "path";
 import { ReskinType } from "../types";
 import { detectGameFolder, isValidGameFolder, getReskinpacksFolder } from "../utils/gameDetection";
-import { listReskinPacks, readReskinPack, createNewReskinPack, copyImageToPack, deleteReskinPack, writeReskinPack, generateUniqueId } from "../utils/fileOps";
+import { listReskinPacks, readReskinPack, createNewReskinPack, copyImageToPack, deleteReskinPack, writeReskinPack, generateUniqueId, listContentFiles } from "../utils/fileOps";
 import { loadConfig, saveConfig } from "../utils/config";
 import { validateImageFile } from "../utils/imageValidation";
 import { checkForUpdates } from "../utils/updateChecker";
 import { RESKIN_TYPE_FOLDERS } from "../utils/constants";
 import { scanWorkshopMods, getWorkshopModPath } from "../utils/workshopScanning";
+import {
+  getSteamStatus,
+  detectPuckBuildId,
+  validatePreviewImage,
+  recompressPreviewImage,
+  getLiveMetadata,
+  listMyPublishedItems,
+} from "../utils/steamWorkshop";
+import {
+  listWorkshopItems,
+  getWorkshopItemForPack,
+  upsertWorkshopItem,
+  deleteWorkshopItem,
+  storePreview,
+  previewDestFor,
+} from "../utils/workshopItems";
+import { publishWorkshopItem, PublishRequest, syncAllFromSteam } from "../utils/publishFlow";
+import { importFromSteamWorkshopUploader } from "../utils/swuImport";
+import { WorkshopItemRecord } from "../types";
+
+/** Turn an arbitrary seed into a filesystem-safe key for preview filenames. */
+function safePreviewKey(seed: string): string {
+  return (
+    seed
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 60) || "preview"
+  );
+}
 
 let mainWindow: BrowserWindow | null = null;
 
 function createWindow() {
+  // Default to 1.5x the old size, but never larger than the usable screen area.
+  const { width: workW, height: workH } = screen.getPrimaryDisplay().workAreaSize;
+  const winWidth = Math.min(1800, workW);
+  const winHeight = Math.min(1200, workH);
+
   mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 800,
+    width: winWidth,
+    height: winHeight,
     minWidth: 800,
     minHeight: 600,
     webPreferences: {
@@ -71,7 +106,18 @@ ipcMain.handle("get-config", () => {
 });
 
 ipcMain.handle("get-app-version", () => {
-  return app.getVersion();
+  // app.getVersion() returns Electron's version in dev (when launched via a
+  // path), so read our real version straight from package.json. This resolves
+  // correctly both in dev (project root) and when packaged (asar root).
+  try {
+    const fs = require("fs");
+    const pkg = JSON.parse(
+      fs.readFileSync(path.join(__dirname, "..", "..", "package.json"), "utf-8")
+    );
+    return pkg.version || app.getVersion();
+  } catch {
+    return app.getVersion();
+  }
 });
 
 ipcMain.handle("save-config", (_, config) => {
@@ -323,5 +369,139 @@ ipcMain.handle("replace-image", async (_, destPath: string, sourceImagePath: str
   } catch (error) {
     console.error("Error replacing image:", error);
     return { success: false, error: String(error) };
+  }
+});
+
+// -------------------------------------------------------------------------
+// Steam Workshop publishing
+// -------------------------------------------------------------------------
+
+ipcMain.handle("workshop-get-steam-status", () => {
+  return getSteamStatus();
+});
+
+ipcMain.handle("workshop-detect-build-id", (_, gameFolder?: string) => {
+  return detectPuckBuildId(gameFolder);
+});
+
+ipcMain.handle("workshop-list-items", () => {
+  return listWorkshopItems();
+});
+
+ipcMain.handle("workshop-get-item-for-pack", (_, packName: string) => {
+  return getWorkshopItemForPack(packName);
+});
+
+ipcMain.handle("workshop-save-item", (_, record: WorkshopItemRecord) => {
+  return upsertWorkshopItem(record);
+});
+
+ipcMain.handle("workshop-delete-item-tracking", (_, localId: string) => {
+  return deleteWorkshopItem(localId);
+});
+
+ipcMain.handle("workshop-select-preview", async () => {
+  const result = await dialog.showOpenDialog(mainWindow!, {
+    title: "Select a Workshop preview image",
+    filters: [
+      { name: "Images", extensions: ["png", "jpg", "jpeg", "gif"] },
+      { name: "All Files", extensions: ["*"] },
+    ],
+    properties: ["openFile"],
+  });
+  if (result.canceled) return null;
+  return result.filePaths[0];
+});
+
+ipcMain.handle("workshop-select-content-folder", async () => {
+  const result = await dialog.showOpenDialog(mainWindow!, {
+    title: "Select the folder to upload",
+    properties: ["openDirectory"],
+  });
+  if (result.canceled) return null;
+  return result.filePaths[0];
+});
+
+ipcMain.handle("workshop-validate-preview", (_, sourcePath: string) => {
+  return validatePreviewImage(sourcePath);
+});
+
+// Store the chosen preview into app data (never inside the content folder),
+// recompressing it under Steam's 1MB limit when requested.
+ipcMain.handle(
+  "workshop-prepare-preview",
+  (_, keySeed: string, sourcePath: string, recompress: boolean) => {
+    try {
+      const key = safePreviewKey(keySeed);
+      if (recompress) {
+        const dest = previewDestFor(key, ".jpg");
+        const r = recompressPreviewImage(sourcePath, dest);
+        if (!r.success) {
+          return { success: false, error: r.error };
+        }
+        return {
+          success: true,
+          path: r.path,
+          sizeBytes: r.sizeBytes,
+          recompressed: true,
+        };
+      }
+      const stored = storePreview(key, sourcePath);
+      const fs = require("fs");
+      return {
+        success: true,
+        path: stored,
+        sizeBytes: fs.statSync(stored).size,
+        recompressed: false,
+      };
+    } catch (error) {
+      return { success: false, error: String(error) };
+    }
+  }
+);
+
+ipcMain.handle("workshop-get-live-metadata", (_, publishedFileId: string) => {
+  return getLiveMetadata(publishedFileId);
+});
+
+ipcMain.handle("workshop-list-my-published", () => {
+  return listMyPublishedItems();
+});
+
+ipcMain.handle("workshop-publish", (_, req: PublishRequest) => {
+  return publishWorkshopItem(req);
+});
+
+// Refresh all tracked items' metadata from Steam in one batch.
+ipcMain.handle("workshop-sync-all", () => {
+  return syncAllFromSteam();
+});
+
+// Preview the files that will be uploaded from a content folder.
+ipcMain.handle("workshop-list-content-files", (_, contentPath: string) => {
+  if (!contentPath) return { files: [], totalBytes: 0, totalCount: 0, truncated: false };
+  return listContentFiles(contentPath);
+});
+
+// Import tracking data from the legacy SteamWorkshopUploader. Opens a folder
+// picker (defaulting to the given path) and imports every .workshop.json found.
+ipcMain.handle("workshop-import-swu", async (_, defaultPath?: string) => {
+  const result = await dialog.showOpenDialog(mainWindow!, {
+    title:
+      "Select your SteamWorkshopUploader folder (or its WorkshopContent folder)",
+    defaultPath: defaultPath || undefined,
+    properties: ["openDirectory"],
+  });
+  if (result.canceled) return null;
+  try {
+    return importFromSteamWorkshopUploader(result.filePaths[0]);
+  } catch (error) {
+    return {
+      imported: 0,
+      updated: 0,
+      skipped: 0,
+      entries: [],
+      error: String(error),
+    };
   }
 });

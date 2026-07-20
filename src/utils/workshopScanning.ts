@@ -40,7 +40,7 @@ function getSteamPathFromRegistry(): string | null {
 /**
  * Get Steam path - tries registry first, then derives from game folder
  */
-function getSteamPath(gameFolderPath?: string): string | null {
+export function getSteamPath(gameFolderPath?: string): string | null {
   // Try registry first
   const registrySteamPath = getSteamPathFromRegistry();
   if (registrySteamPath) {
