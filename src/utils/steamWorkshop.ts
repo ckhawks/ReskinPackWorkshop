@@ -346,7 +346,21 @@ export async function publishItem(
   if (options.title !== undefined) update.title = options.title;
   if (options.description !== undefined)
     update.description = options.description;
-  if (options.previewPath) update.previewPath = options.previewPath;
+  // The native steamworks layer does `path.canonicalize().unwrap()` and
+  // `assert!(SetItemPreview(...))` on the preview, both of which PANIC (surfacing
+  // as an opaque "Panic in async function") if the file is missing or Steam
+  // rejects it. Guard here so a bad preview yields a clear error instead of
+  // taking down the whole publish.
+  if (options.previewPath) {
+    const preview = validatePreviewImage(options.previewPath);
+    if (!preview.valid) {
+      return {
+        success: false,
+        error: `Preview image can't be used: ${preview.errors.join(" ")}`,
+      };
+    }
+    update.previewPath = options.previewPath;
+  }
   if (options.tags) update.tags = options.tags;
   if (options.visibility !== undefined)
     update.visibility = VISIBILITY_TO_NUM[options.visibility];
@@ -366,7 +380,13 @@ export async function publishItem(
       url: itemUrl(id),
     };
   } catch (error) {
-    return { success: false, error: String(error) };
+    // steamworks.js collapses every native failure into "Panic in async
+    // function". Translate that into something the user can act on.
+    const raw = String(error);
+    const friendly = /panic/i.test(raw)
+      ? "Steam rejected the upload. This usually means the preview image is missing/too large, the content folder is empty or too big, or you haven't accepted the Steam Workshop legal agreement yet. Try removing or re-adding the preview image and publish again."
+      : raw;
+    return { success: false, error: friendly };
   }
 }
 
