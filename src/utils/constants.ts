@@ -73,6 +73,9 @@ export function getReskinTypeLabel(type: ReskinType | string): string {
 
 export const PUCK_GAME_NAME = "Puck";
 export const DEFAULT_GAME_PATH = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Puck";
+// On macOS the game folder is the one containing Puck.app, matching how the mod
+// itself resolves the install (bundle parent), so reskinpacks/Plugins sit beside it.
+export const MAC_STEAM_PATH = "Library/Application Support/Steam";
 export const RESKINPACKS_FOLDER = "reskinpacks";
 
 /** Puck's Steam App ID, used for both workshop scanning and UGC uploads. */

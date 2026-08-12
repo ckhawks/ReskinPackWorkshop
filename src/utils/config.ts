@@ -3,7 +3,13 @@ import * as fs from "fs";
 import * as os from "os";
 import { AppConfig } from "../types";
 
-const CONFIG_DIR = path.join(os.homedir(), "AppData", "Local", "ReskinBuilder");
+// App data lives in the OS-appropriate per-user location. macOS is handled
+// explicitly because the Windows path would otherwise be created as a literal
+// "AppData/Local" folder in the home directory.
+const CONFIG_DIR =
+  process.platform === "darwin"
+    ? path.join(os.homedir(), "Library", "Application Support", "ReskinBuilder")
+    : path.join(os.homedir(), "AppData", "Local", "ReskinBuilder");
 const CONFIG_FILE = path.join(CONFIG_DIR, "config.json");
 
 /**

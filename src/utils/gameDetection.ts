@@ -1,7 +1,13 @@
 import * as fs from "fs";
 import * as path from "path";
+import * as os from "os";
 import { execSync } from "child_process";
-import { DEFAULT_GAME_PATH, PUCK_GAME_NAME, RESKINPACKS_FOLDER } from "./constants";
+import {
+  DEFAULT_GAME_PATH,
+  MAC_STEAM_PATH,
+  PUCK_GAME_NAME,
+  RESKINPACKS_FOLDER,
+} from "./constants";
 
 /**
  * Attempt to detect the Puck game folder by:
@@ -11,10 +17,11 @@ import { DEFAULT_GAME_PATH, PUCK_GAME_NAME, RESKINPACKS_FOLDER } from "./constan
  */
 export async function detectGameFolder(): Promise<string | null> {
   // First try default path
-  if (fs.existsSync(DEFAULT_GAME_PATH)) {
-    const reskinpacksPath = path.join(DEFAULT_GAME_PATH, RESKINPACKS_FOLDER);
+  const defaultGamePath = getDefaultGamePath();
+  if (fs.existsSync(defaultGamePath)) {
+    const reskinpacksPath = path.join(defaultGamePath, RESKINPACKS_FOLDER);
     if (fs.existsSync(reskinpacksPath)) {
-      return DEFAULT_GAME_PATH;
+      return defaultGamePath;
     }
   }
 
@@ -39,9 +46,30 @@ export async function detectGameFolder(): Promise<string | null> {
 }
 
 /**
+ * The conventional install location for Puck on this OS.
+ */
+function getDefaultGamePath(): string {
+  if (process.platform === "darwin") {
+    return path.join(
+      os.homedir(),
+      MAC_STEAM_PATH,
+      "steamapps",
+      "common",
+      PUCK_GAME_NAME
+    );
+  }
+  return DEFAULT_GAME_PATH;
+}
+
+/**
  * Detect Steam installation path from Windows registry, with fallback to common paths
  */
 function detectSteamPath(): string | null {
+  if (process.platform === "darwin") {
+    const macSteam = path.join(os.homedir(), MAC_STEAM_PATH);
+    return fs.existsSync(macSteam) ? macSteam : null;
+  }
+
   // First, try to read from Windows registry
   try {
     const output = execSync(
